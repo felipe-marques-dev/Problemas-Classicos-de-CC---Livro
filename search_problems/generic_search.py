@@ -46,5 +46,23 @@ def binary_contains(sequence: Sequence[C], key: C) -> bool:
     return False
 
 
+class Stack(Generic[T]):
+    def __init__(self) -> None:
+        self._container: List[T] = []
+    
+    @property
+    def empty(self) -> bool:
+        return not self._container
+    
+    def push(self, item: T) -> None:
+        self._container.append(item)
+    
+    def pop(self) -> T:
+        return self._container.pop() #LIFO
+
+    def __repr__(self) -> str:
+        return repr(self._container)
+    
+
 if __name__ == "__main__":
     print(binary_contains([2, 4, 5, 8, 12, 28, 54, 99], 4))
