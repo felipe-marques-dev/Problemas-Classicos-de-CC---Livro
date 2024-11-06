@@ -64,5 +64,49 @@ class Stack(Generic[T]):
         return repr(self._container)
     
 
+class Node(Generic[T]):
+    def __init__(self, state: T, parent: Optional[Node], cost: float = 0.0, heuristic: float = 0.0) -> None:
+        self.state: T = state
+        self.parent: Optional[Node] = parent
+        self.cost: float = cost
+        self.heuristc: float = heuristic
+    
+    def __lt__(self, other: Node) -> bool:
+        return (self.cost + self.heuristc) < (other.cost + other.heuristc)
+
+
+def dfs(initial: T, goal_test: Callable[[T], bool], sucessors: Callable[[T], List[T]]) -> Optional[Node[T]]:
+    # frontier corresponde aos lugares que ainda nao visitamos
+    frontier: Stack[Node[T]] = Stack()
+    frontier.push(Node(initial, None))
+    # explored representa os lugares em que já estivemos
+    explored: Set[T] = {initial}
+
+    # continua enquanto houver mais lugares para explorar
+    while not frontier.empty:
+        current_node: Node[T] = frontier.pop()
+        current_state: T = current_node.state
+        # se encontrarmos o objetivo, terminamos
+        if goal_test(current_state):
+            return current_node
+        # verifica para onde podemos ir em seguida e que ainda não tenha sido explorado
+        for child in sucessors(current_state):
+            if child in explored: # ignora os filhos que ja tenham sido explorados
+                continue
+            explored.add(child)
+            frontier.push(Node(child, current_node))
+    return None # passamos por todos os lugares e nao atingimos o objetivo
+
+
+def node_to_path(node: Node[T]) -> List[T]:
+    path: List[T] = [node.state]
+    # trabalha o sentido inverso, do final para o inicio
+    while node.parent is not None:
+        node = node.parent
+        path.append(node.state)
+    path.reverse()
+    return path
+
+
 if __name__ == "__main__":
     print(binary_contains([2, 4, 5, 8, 12, 28, 54, 99], 4))

@@ -3,10 +3,11 @@ from typing import List, NamedTuple, Callable, Optional
 import random
 from math import sqrt
 # from  generic_search import dfs, bfs, node_to_path, astar, Node
+from generic_search import Node, dfs, node_to_path
 
 
 class Cell(str, Enum):
-    EMPTY = ""
+    EMPTY = " "
     BLOCKED = "X"
     START = "S"
     GOAL = "G"
@@ -19,8 +20,8 @@ class MazeLocation(NamedTuple):
 
 
 class Maze:
-    def __init__(self, rows: int = 10, columns: int = 10, sparseness: float = 0.2, start:MazeLocation = MazeLocation(0,0), 
-                 goal: MazeLocation = MazeLocation(9,9)) -> None:
+    def __init__(self, rows: int = 20, columns: int = 20, sparseness: float = 0.2, start:MazeLocation = MazeLocation(0,0), 
+                 goal: MazeLocation = MazeLocation(19,19)) -> None:
         # inicializa as variaveis de instância basicas
         self._rows: int = rows
         self._columns: int = columns
@@ -58,14 +59,36 @@ class Maze:
             locations.append(MazeLocation(ml.row, ml.column -1))
         return locations
 
+    def mark(self, path: List[MazeLocation]):
+        for maze_location in path:
+            self._grid[maze_location.row][maze_location.column] = Cell.PATH
+        self._grid[self.start.row][self.start.column] = Cell.START
+        self._grid[self.goal.row][self.goal.column] = Cell.GOAL
+
+    def clear(self, path: List[MazeLocation]):
+        for maze_location in path:
+            self._grid[maze_location.row][maze_location.column] = Cell.EMPTY
+        self._grid[self.start.row][self.start.column] = Cell.START
+        self._grid[self.goal.row][self.goal.column] = Cell.GOAL
+
 
     # devolve uma versão do labirinto com uma formatação elegante para exibição
     def __str__(self) -> str:
         output: str = ""
         for row in self._grid:
             output += " ".join([c.value for c in row]) + "\n"
-        return output
-    
+        return output 
 
-maze: Maze = Maze()
-print(maze)
+if __name__ == "__main__":
+    # teste da DFS
+    m: Maze = Maze()
+    print(m)
+    print("="*40)
+    solution1: Optional[Node[MazeLocation]] = dfs(m.start, m.goal_test, m.sucessors)
+    if solution1 is None:
+        print("No solution found using depth-first search!")
+    else:
+        path1: List[MazeLocation] = node_to_path(solution1)
+        m.mark(path1)
+        print(m)
+        m.clear(path1)
