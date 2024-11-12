@@ -3,15 +3,15 @@ from typing import List, NamedTuple, Callable, Optional
 import random
 from math import sqrt
 # from  generic_search import dfs, bfs, node_to_path, astar, Node
-from generic_search import Node, dfs, node_to_path
+from generic_search import Node, dfs, node_to_path, bfs
 
 
 class Cell(str, Enum):
     EMPTY = " "
-    BLOCKED = "X"
+    BLOCKED = '\033[31m'+'X'+'\033[0;0m'
     START = "S"
     GOAL = "G"
-    PATH = "*"
+    PATH = '\033[32m'+'*'+'\033[0;0m' 
 
 
 class MazeLocation(NamedTuple):
@@ -19,9 +19,11 @@ class MazeLocation(NamedTuple):
     column: int
 
 
+mapValues: int = 20
+goalLocation: int = mapValues - 1
 class Maze:
-    def __init__(self, rows: int = 20, columns: int = 20, sparseness: float = 0.2, start:MazeLocation = MazeLocation(0,0), 
-                 goal: MazeLocation = MazeLocation(19,19)) -> None:
+    def __init__(self, rows: int = mapValues, columns: int = mapValues, sparseness: float = 0.2, start:MazeLocation = MazeLocation(0,0), 
+                 goal: MazeLocation = MazeLocation(goalLocation,goalLocation)) -> None:
         # inicializa as variaveis de instância basicas
         self._rows: int = rows
         self._columns: int = columns
@@ -84,7 +86,8 @@ if __name__ == "__main__":
     m: Maze = Maze()
     print(m)
     print("="*40)
-    solution1: Optional[Node[MazeLocation]] = dfs(m.start, m.goal_test, m.sucessors)
+    solution1: Optional[Node[MazeLocation]] = bfs(m.start, m.goal_test, m.sucessors)
+
     if solution1 is None:
         print("No solution found using depth-first search!")
     else:

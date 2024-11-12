@@ -108,5 +108,46 @@ def node_to_path(node: Node[T]) -> List[T]:
     return path
 
 
+class Queue(Generic[T]):
+    def __init__(self) -> None:
+        self._container: Deque[T] = Deque()
+    
+    @property
+    def empty(self) -> bool:
+        return not self._container # negação é verdadeira para um container vazio
+    
+    def push(self, item: T) -> None:
+        self._container.append(item)
+    
+    def pop(self) -> T:
+        return self._container.popleft() #FIFO
+
+    def __repr__(self) -> str:
+        return repr(self._container)
+ 
+
+def bfs(initial: T, goal_test: Callable[[T], bool], sucessors: Callable[[T], List[T]]) -> Optional[Node[T]]:
+    # frontier corresponde aos lugares que ainda nao visitamos
+    frontier: Queue[Node[T]] = Queue()
+    frontier.push(Node(initial, None))
+    # explored representa os lugares em que já estivemos
+    explored: Set[T] = {initial}
+
+    # continua enquanto houver mais lugares para explorar
+    while not frontier.empty:
+        current_node: Node[T] = frontier.pop()
+        current_state: T = current_node.state
+        # se encontrarmos o objetivo, terminamos
+        if goal_test(current_state):
+            return current_node
+        # verifica para onde podemos ir em seguida e que ainda não tenha sido explorado
+        for child in sucessors(current_state):
+            if child in explored: # ignora os filhos que ja tenham sido explorados
+                continue
+            explored.add(child)
+            frontier.push(Node(child, current_node))
+    return None # passamos por todos os lugares e nao atingimos o objetivo
+
+
 if __name__ == "__main__":
     print(binary_contains([2, 4, 5, 8, 12, 28, 54, 99], 4))
