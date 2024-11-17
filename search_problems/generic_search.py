@@ -69,10 +69,10 @@ class Node(Generic[T]):
         self.state: T = state
         self.parent: Optional[Node] = parent
         self.cost: float = cost
-        self.heuristc: float = heuristic
+        self.heuristic: float = heuristic
     
     def __lt__(self, other: Node) -> bool:
-        return (self.cost + self.heuristc) < (other.cost + other.heuristc)
+        return (self.cost + self.heuristic) < (other.cost + other.heuristic)
 
 
 def dfs(initial: T, goal_test: Callable[[T], bool], sucessors: Callable[[T], List[T]]) -> Optional[Node[T]]:
@@ -147,6 +147,50 @@ def bfs(initial: T, goal_test: Callable[[T], bool], sucessors: Callable[[T], Lis
             explored.add(child)
             frontier.push(Node(child, current_node))
     return None # passamos por todos os lugares e nao atingimos o objetivo
+
+
+class PriorityQueue(Generic[T]):
+    def __init__(self) -> None:
+        self._container: List[T] = []
+    
+    @property
+    def empty(self) -> bool:
+        return not self._container # negação é verdadeira para um container vazio
+    
+    def push(self, item: T) -> None:
+        heappush(self._container, item)
+
+    def pop(self) -> T:
+        return heappop(self._container)
+
+    def __repr__(self) -> str:
+        return repr(self._container)
+ 
+
+def astar(initial: T, goal_test: Callable[[T], bool], sucessors: Callable[[T], List[T]], heuristic: Callable[[T], float]) -> Optional[Node[T]]:
+    # frontier corresponde aos lugares que ainda devemos visitar
+    frontier: PriorityQueue[Node[T]] = PriorityQueue()
+    initial_heuristic = heuristic(initial)
+    frontier.push(Node(initial, None, 0.0, initial_heuristic))
+
+    # explored representa os lugres em que já estivemos
+    explored: Dict[T, float] = {initial: 0.0}
+
+    # continua enquanto houver mais lugares para explorar
+    while not frontier.empty:
+        current_node: Node[T] = frontier.pop()
+        current_state: T = current_node.state
+        # se encontrarmos o objetivo, terminamos
+        if goal_test(current_state):
+            return current_node
+        # verifica onde podemos ir em seguida e que ainda não tenha sido explorado
+        for child in sucessors(current_state):
+            new_cost: float = current_node.cost + 1 # 1 supoe uma grade,
+                                                    # é necessário uma função de custo para aplicações mais sofisticadas
+            if child not in explored or explored[child] > new_cost:
+                explored[child] = new_cost
+                frontier.push(Node(child, current_node, new_cost, heuristic(child)))
+    return None # passamos por todos os lugares e não atingimos o objetivo
 
 
 if __name__ == "__main__":

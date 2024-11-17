@@ -3,7 +3,7 @@ from typing import List, NamedTuple, Callable, Optional
 import random
 from math import sqrt
 # from  generic_search import dfs, bfs, node_to_path, astar, Node
-from generic_search import Node, dfs, node_to_path, bfs
+from generic_search import *
 
 
 class Cell(str, Enum):
@@ -73,23 +73,37 @@ class Maze:
         self._grid[self.start.row][self.start.column] = Cell.START
         self._grid[self.goal.row][self.goal.column] = Cell.GOAL
 
-
+    def euclidian_distance(goal: MazeLocation) -> Callable[[MazeLocation], float]:
+        def distance(ml: MazeLocation) -> float:
+            xdist: int = ml.column - goal.column
+            ydist: int = ml.row - goal.row
+            return sqrt((xdist * xdist) + (ydist * ydist))
+        return distance
     # devolve uma versão do labirinto com uma formatação elegante para exibição
     def __str__(self) -> str:
         output: str = ""
         for row in self._grid:
             output += " ".join([c.value for c in row]) + "\n"
         return output 
+    
+def manhattan_distance(goal: MazeLocation) -> Callable[[MazeLocation], float]:
+        def distance(ml: MazeLocation) -> float:
+            xdist: int = abs(ml.column - goal.column)
+            ydist: int = abs(ml.row - goal.row)
+            return(xdist + ydist)
+        return distance
+
 
 if __name__ == "__main__":
-    # teste da DFS
+    # teste da A*
     m: Maze = Maze()
     print(m)
     print("="*40)
-    solution1: Optional[Node[MazeLocation]] = bfs(m.start, m.goal_test, m.sucessors)
+    distance: Callable[[MazeLocation], float] = manhattan_distance(m.goal)
+    solution1: Optional[Node[MazeLocation]] = astar(m.start, m.goal_test, m.sucessors, distance)
 
     if solution1 is None:
-        print("No solution found using depth-first search!")
+        print("No solution found using A*")
     else:
         path1: List[MazeLocation] = node_to_path(solution1)
         m.mark(path1)
