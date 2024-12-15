@@ -1,21 +1,7 @@
-from enum import Enum
-from typing import List, NamedTuple
 import random
 
 
-class Cell(str, Enum):
-    EMPTY = "0"
-    BLOCKED = '\033[31m'+'X'+'\033[0;0m'
-    PATH = '\033[32m'+'*'+'\033[0;0m' 
-
-
-class MazeLocation(NamedTuple):
-    row: int
-    column: int
-
-
-mapValues: int = 9
-goalLocation: int = mapValues - 1
+mapValues: int = 9 # Tamano do tabuleiro
 class Board:
     def __init__(self, rows: int = mapValues, columns: int = mapValues, difficulty: float = 0.1) -> None:
         # inicializa as variaveis de instância basicas
@@ -27,7 +13,6 @@ class Board:
 
     def generateRandomNumbers(self):
         randomNumber = random.randrange(1,9)
-        print(randomNumber)
         return randomNumber
 
     def is_valid(self, randomNumber, row, column):
@@ -40,6 +25,7 @@ class Board:
         
         return True
 
+    # Preenche o tablueiro com numeros aleatorios
     def randomly_fill(self):
             for row in range(self._rows):
                 for column in range(self._columns):
@@ -88,7 +74,8 @@ class Board:
 
         # Se nenhuma das comparações retornar False, significa que o número pode ser colocado
         return True
-# devolve uma versão do tabuleiro com uma formatação elegante para exibição
+
+    # devolve uma versão do tabuleiro com uma formatação elegante para exibição
     def __str__(self) -> str:
         output: str = ""
         for row in self._grid:
@@ -107,5 +94,5 @@ class SudokuSolver():
 if __name__ == "__main__":
     board = Board()
     randomNumber = board.generateRandomNumbers()
-    print(board.randomly_fill())
+    board.randomly_fill()
     print(board)
